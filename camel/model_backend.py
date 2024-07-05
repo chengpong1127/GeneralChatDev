@@ -14,8 +14,10 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict
 
+import ollama
 import openai
 import tiktoken
+import time
 
 from camel.typing import ModelType
 from chatdev.statistics import prompt_cost
@@ -54,6 +56,33 @@ class ModelBackend(ABC):
         """
         pass
 
+class OllamaModel(ModelBackend):
+    def __init__(self, model_type: ModelType, model_config_dict: Dict) -> None:
+        super().__init__()
+        self.model_name = model_config_dict['model_name']
+        self.model_config_dict = model_config_dict
+        
+    def run(self, *args, **kwargs):
+        response = ollama.chat(
+            model='llama3',
+            messages=kwargs['messages'],
+            options=self.model_config_dict
+        )
+        choice = {
+            "message": {"role": "assistant", "content": response['message']['content']},
+            "finish_reason": 'stop',
+            "index": 0  # Assuming index is 0 if not provided
+        }
+        completion = ChatCompletion(
+            id=self.model_name,
+            choices=[choice],
+            model=self.model_name,
+            object='chat.completion',
+            created=int(time.time()),
+            usage=response.get('usage', None),
+            system_fingerprint=None
+        )
+        return completion
 
 class OpenAIModel(ModelBackend):
     r"""OpenAI API in a unified ModelBackend interface."""
@@ -173,7 +202,7 @@ class ModelFactory:
 
     @staticmethod
     def create(model_type: ModelType, model_config_dict: Dict) -> ModelBackend:
-        default_model_type = ModelType.GPT_3_5_TURBO
+        default_model_type = ModelType.OLLAMA
 
         if model_type in {
             ModelType.GPT_3_5_TURBO,
@@ -185,6 +214,8 @@ class ModelFactory:
             None
         }:
             model_class = OpenAIModel
+        elif model_type == ModelType.OLLAMA:
+            model_class = OllamaModel
         elif model_type == ModelType.STUB:
             model_class = StubModel
         else:

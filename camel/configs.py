@@ -64,6 +64,7 @@ class ChatGPTConfig:
             which can help OpenAI to monitor and detect abuse.
             (default: :obj:`""`)
     """
+    model_name: str = "deepseek-coder-v2"
     temperature: float = 0.2  # openai default: 1.0
     top_p: float = 1.0
     n: int = 1
