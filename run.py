@@ -111,13 +111,6 @@ chat_chain = ChatChain(config_path=config_path,
                        code_path=args.path)
 
 # ----------------------------------------
-#          Init Log
-# ----------------------------------------
-logging.basicConfig(filename=chat_chain.log_filepath, level=logging.INFO,
-                    format='[%(asctime)s %(levelname)s] %(message)s',
-                    datefmt='%Y-%d-%m %H:%M:%S', encoding="utf-8")
-
-# ----------------------------------------
 #          Pre Processing
 # ----------------------------------------
 

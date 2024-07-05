@@ -182,6 +182,7 @@ class ChatChain:
         # directory = root + "/WareHouse/"
         directory = os.path.join(root, "WareHouse")
         log_filepath = os.path.join(directory,
+                                    "_".join([self.project_name, self.org_name, start_time]),
                                     "{}.log".format("_".join([self.project_name, self.org_name, start_time])))
         return start_time, log_filepath
 
@@ -205,6 +206,10 @@ class ChatChain:
 
         software_path = os.path.join(directory, "_".join([self.project_name, self.org_name, self.start_time]))
         self.chat_env.set_directory(software_path)
+        
+        logging.basicConfig(filename=self.log_filepath, level=logging.INFO,
+                    format='[%(asctime)s %(levelname)s] %(message)s',
+                    datefmt='%Y-%d-%m %H:%M:%S', encoding="utf-8")
 
         if self.chat_env.config.with_memory is True:
             self.chat_env.init_memory()
